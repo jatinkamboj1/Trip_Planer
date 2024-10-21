@@ -16,7 +16,7 @@ const router = express.Router();
 router.post("/register", register);
 router.post("/verifyotp", verifyotp);
 router.post("/login", login);
-0// router.post('/profile', profile );
+// router.post('/profile', profile );
 router.get("/admin/dashboard", admin);
 router.get("/user/dashboard", user);
 router.get("/register", registerForm);

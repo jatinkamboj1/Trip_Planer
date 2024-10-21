@@ -6,6 +6,10 @@ const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const { response } = require("express");
 require("dotenv").config();
+//otp
+function generateOTP() {
+  return Math.floor(100000 + Math.random() * 900000);
+}
 
 exports.registerForm = async (req, res) => {
   res.render("register");
@@ -28,12 +32,7 @@ exports.register = async (req, res) => {
 
   // If user exists, update the email and generate a new OTP
   if (existingUser) {
-    const otp = otpGenerator.generate(6, {
-      upperCase: false,
-      specialChars: false,
-      digits: true,
-    });
-
+    const otp = generateOTP();
     const updatedUser = await prisma.user.update({
       where: { username },
       data: {
@@ -74,12 +73,7 @@ exports.register = async (req, res) => {
     // If user does not exist, create a new user
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
-
-    const otp = otpGenerator.generate(6, {
-      upperCase: false,
-      specialChars: false,
-      digits: true,
-    });
+    const otp = generateOTP();
 
     // Check if there are any existing users in the database
     const existingUsers = await prisma.user.findMany();
@@ -135,7 +129,9 @@ exports.verifyotp = async (req, res) => {
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
-  if (user.otp !== otp) {
+  if (user.otp != otp) {
+    console.log(otp, user.otp);
+
     return res.status(400).json({ message: "Invalid OTP" });
   }
   await prisma.user.update({

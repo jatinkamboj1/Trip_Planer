@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+model User {
+  userId             Int      @id @default(autoincrement()) 
+  username           String   @unique                     
+  password           String                               
+  email              String   @unique                     
+  contactnumber      String?                              
+  profilepicture     String?                              
+  role               String   @default("user")            
+  createdAt          DateTime @default(now())             
+  updatedAt          DateTime @updatedAt                  
+  otp                String?  // Added OTP field
+  active             Boolean  @default(false)
+  trips              Trip[]   
+  reviews            Review[] 
+}
+
+model Trip {
+  tripId            Int      @id @default(autoincrement()) 
+  destination       String
+  budget            Float
+  description       String
+  startdate         DateTime
+  enddate           DateTime
+  vehicaldetail     String?  
+  totalseats        Int
+  tripimage         String?
+  userId            Int
+  picuppoint       String
+  droppoint         String
+  createdAt         DateTime @default(now())  
+  updatedAt         DateTime @updatedAt       
+  user              User     @relation(fields: [userId], references: [userId])  
+  payments          Payment[] 
+  reviews           Review[] 
+  pictures          Picture[] 
+}
+
+model Payment {
+  paymentId         Int      @id @default(autoincrement()) 
+  tripId            Int
+  amount            Float
+  paymentdate       DateTime @default(now())
+  paymentmethod     String? 
+  paymentstatus     String
+  transactionid     String
+  trip              Trip     @relation(fields: [tripId], references: [tripId]) 
+}
+
+model Review {
+  reviewId          Int      @id @default(autoincrement()) 
+  tripId            Int
+  userId            Int
+  ratingId          Int
+  reviewtext        String
+  trip              Trip     @relation(fields: [tripId], references: [tripId]) 
+  user              User     @relation(fields: [userId], references: [userId]) 
+}
+
+model Picture {
+  pictureId         Int      @id @default(autoincrement()) 
+  tripId            Int
+  imageurl          String
+  imagetitle        String?  
+  trip              Trip     @relation(fields: [tripId], references: [tripId]) 
+}
